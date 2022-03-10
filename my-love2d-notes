@@ -1,0 +1,2 @@
+If you don't want to redraw all the points each time, use canvas.
+See wiki page, love.graphics, Types, Canvas.
