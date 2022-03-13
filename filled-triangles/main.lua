@@ -1,15 +1,13 @@
 -- draw a filled triangle
 -- default window size is 800x600
 
--- TODO: Code copied from line program. Convert to filled triangle program.
--- TODO: Start with unfilled outline of triangle.
+-- TODO: Major bug somewhere. Filled triangle has different rotation, scale, and/or shape as outline.
 
 --constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 POINT_SIZE_INCREASE = 0
---[[
 -- triangle points
 -- P0
 P0X = 20
@@ -20,8 +18,9 @@ P1Y = 50
 -- P2
 P2X = -200
 P2Y = -250
-]]--
 
+--[[
+-- alternate points
 P0X = 200
 P0Y = 250
 -- P1
@@ -30,12 +29,63 @@ P1Y = 175
 -- P2
 P2X = -200
 P2Y = -250
+]]--
 
 function love.load()
-   points01 = calculatePoints(P0X, P0Y, P1X, P1Y)
-   points12 = calculatePoints(P1X, P1Y, P2X, P2Y)
-   points20 = calculatePoints(P2X, P2Y, P0X, P0Y)
+   -- copy constants to variables to preserve original point values
+   x0, y0 = P0X, P0Y
+   x1, y1 = P1X, P1Y
+   x2, y2 = P2X, P2Y
+   
+   -- get points for edge lines
+   points01 = calculatePoints(x0, y0, x1, y1)
+   points12 = calculatePoints(x1, y1, x2, y2)
+   points20 = calculatePoints(x2, y2, x0, y0)
 
+   -- get fill points for each triangle edge
+   -- sort points so y0 <= y1 <= y2
+   if y1 < y0 then
+      x1, x0 = x0, x1
+      y1, y0 = y0, y1
+   end
+   if y2 < y0 then
+      x2, x0 = x0, x2
+      y2, y0 = y0, y2
+   end
+   if y2 < y1 then
+      x2, x1 = x1, x2
+      y2, y1 = y1, y2
+   end
+   
+   -- get list of x coordinates for each edge
+   x01 = interpolate(y0, x0, y1, x1)
+   x12 = interpolate(y1, x1, y2, x2)
+   x02 = interpolate(y0, x0, y2, x2)
+   
+   -- concatenate the short sides
+   table.remove(x01)
+
+   x012 = {}
+   for k,v in ipairs(x01) do
+      table.insert(x012, v)
+   end
+   for k,v in ipairs(x12) do
+      table.insert(x012, v)
+   end
+
+   -- determine which is left and which is right
+   m = math.floor(#x012 / 2)
+   if x02[m] < x012[m] then
+      x_left = x02
+      x_right = x012
+   else
+      x_left = x012
+      x_right = x02
+   end
+
+   print("Size of x_left = " .. #x_left)
+   
+   -- prepare for drawing, but only done once
    ps = love.graphics.getPointSize() + POINT_SIZE_INCREASE
    love.graphics.setPointSize(ps)
 end
@@ -45,15 +95,30 @@ function love.draw()
    love.graphics.line(SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT)
    love.graphics.line(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT/2)
 
+   --[[
    love.graphics.print("P0", convert2screen(P0X, true), convert2screen(P0Y, false))
    love.graphics.print("P1", convert2screen(P1X, true), convert2screen(P1Y, false))
    love.graphics.print("P2", convert2screen(P2X, true), convert2screen(P2Y, false))
-   
+   ]]--
+
+   -- draw triangle outline
    love.graphics.setColor(1,1,0)
    love.graphics.points(points01)
    love.graphics.points(points12)
    love.graphics.points(points20)
-   love.graphics.setColor(1,1,1)
+   love.graphics.setColor(0,0,0)
+
+   -- fill triangle
+   love.graphics.setColor(0,1,0)
+
+   for y=y0,y2 do
+      for x=x_left[y - y0 + 1],x_right[y - y0 + 1] do
+	--  print("x = " .. x .. ", y = " .. y)
+	 love.graphics.points(convert2screen(x, true), convert2screen(y, false))
+      end
+   end
+
+   love.graphics.setColor(0,0,0)   
 end
 
 function love.keypressed(key, scancode, isrepeat)
