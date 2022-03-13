@@ -10,11 +10,11 @@ SCREEN_HEIGHT = 600
 POINT_SIZE_INCREASE = 0
 
 -- P0 (start point)
-P0X = -100
-P0Y = 200
+P0X = -50
+P0Y = -200
 -- P1 (end point)
-P1X = 250
-P1Y = -100
+P1X = 60
+P1Y = 240
 
 function love.load()
    -- copy constants to variables
