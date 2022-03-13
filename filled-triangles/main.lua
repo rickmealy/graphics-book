@@ -2,28 +2,68 @@
 -- default window size is 800x600
 
 -- TODO: Code copied from line program. Convert to filled triangle program.
+-- TODO: Start with unfilled outline of triangle.
 
 --constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 POINT_SIZE_INCREASE = 0
+--[[
+-- triangle points
+-- P0
+P0X = 20
+P0Y = 250
+-- P1
+P1X = 200
+P1Y = 50
+-- P2
+P2X = -200
+P2Y = -250
+]]--
 
--- P0 (start point)
-P0X = -50
-P0Y = -200
--- P1 (end point)
-P1X = 60
-P1Y = 240
+P0X = 200
+P0Y = 250
+-- P1
+P1X = -200
+P1Y = 175
+-- P2
+P2X = -200
+P2Y = -250
 
 function love.load()
-   -- copy constants to variables
-   x0 = P0X
-   y0 = P0Y
-   x1 = P1X
-   y1 = P1Y
+   points01 = calculatePoints(P0X, P0Y, P1X, P1Y)
+   points12 = calculatePoints(P1X, P1Y, P2X, P2Y)
+   points20 = calculatePoints(P2X, P2Y, P0X, P0Y)
+
+   ps = love.graphics.getPointSize() + POINT_SIZE_INCREASE
+   love.graphics.setPointSize(ps)
+end
+
+function love.draw()
+   -- draw x and y axes for cartesian plane
+   love.graphics.line(SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT)
+   love.graphics.line(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT/2)
+
+   love.graphics.print("P0", convert2screen(P0X, true), convert2screen(P0Y, false))
+   love.graphics.print("P1", convert2screen(P1X, true), convert2screen(P1Y, false))
+   love.graphics.print("P2", convert2screen(P2X, true), convert2screen(P2Y, false))
    
-   -- load a table with x & y coordinates of all points
+   love.graphics.setColor(1,1,0)
+   love.graphics.points(points01)
+   love.graphics.points(points12)
+   love.graphics.points(points20)
+   love.graphics.setColor(1,1,1)
+end
+
+function love.keypressed(key, scancode, isrepeat)
+   if key == "escape" then
+      love.event.quit()
+   end
+end
+
+-- calculate points for a line, returning table with all points
+function calculatePoints(x0, y0, x1, y1)
    points = {}
 
    if math.abs(x1 - x0) > math.abs(y1 - y0) then
@@ -62,39 +102,7 @@ function love.load()
 	 odd = true
       end
    end
-   
-   -- print("table size = " .. #points)
-   
-   -- print(love.graphics.getPointSize())
-   ps = love.graphics.getPointSize() + POINT_SIZE_INCREASE
-   love.graphics.setPointSize(ps)
-   -- print(love.graphics.getPointSize())
-   -- local width, height = love.window.getMode()
-   -- print("width = " .. width .. " height = " .. height)
-end
-
-function love.draw()
-   -- love.graphics.print("Hello World", 400, 300)
-   -- love.graphics.clear(0.0,0.0,0.0) -- set screen color to rgb values
-
-   -- love.graphics.rectangle("line", x1, y0, x0 - x1, y1 - y0)
-
-   -- draw x and y axes for cartesian plane
-   love.graphics.line(SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT)
-   love.graphics.line(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT/2)
-
-   love.graphics.print("P0", convert2screen(P0X, true), convert2screen(P0Y, false))
-   love.graphics.print("P1", convert2screen(P1X, true), convert2screen(P1Y, false))
-   
-   love.graphics.setColor(1,1,0)
-   love.graphics.points(points)
-   love.graphics.setColor(1,1,1)
-end
-
-function love.keypressed(key, scancode, isrepeat)
-   if key == "escape" then
-      love.event.quit()
-   end
+   return points
 end
 
 -- return a list of dependent values in raw floating point format
