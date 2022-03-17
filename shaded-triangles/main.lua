@@ -1,14 +1,19 @@
--- draw a filled triangle
+-- draw a shaded triangle
 -- default window size is 800x600
+
+--[[
+   I finished the modifications, but it's not working. I'm getting an error.
+   I think it's a table index error.
+   Tables start at 1, so t[1] is the first element and t[#t] is the last.
+]]--
 
 --constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-POINT_SIZE_INCREASE = 1
+POINT_SIZE_INCREASE = 0
 -- triangle points
 
---[[
 -- from book example
 -- P0
 P0X = 20
@@ -19,8 +24,12 @@ P1Y = 50
 -- P2
 P2X = -200
 P2Y = -250
-]]--
+-- COLOR
+red = 0
+green = 1
+blue = 0
 
+--[[
 -- change these to make a new triangle
 --P0
 P0X = 50
@@ -31,7 +40,7 @@ P1Y = 50
 -- P2
 P2X = 150
 P2Y = -250
-
+]]--
 
 DRAW_OUTLINE = true
 DRAW_FILL = true
@@ -41,6 +50,11 @@ function love.load()
    x0, y0 = P0X, P0Y
    x1, y1 = P1X, P1Y
    x2, y2 = P2X, P2Y
+
+   -- set h values
+   h0 = 0.0
+   h1 = 0.0
+   h2 = 1.1
 
    -- get points for edge lines
    points01 = calculatePoints(x0, y0, x1, y1)
@@ -65,11 +79,16 @@ function love.load()
    end
 
    -- debug()
-   
-   -- get list of x coordinates for each edge
+
+   -- get list of x & h values of coordinates for each edge
    x01 = interpolate(y0, x0, y1, x1)
+   h01 = interpolate(y0, h0, y1, h1)
+   
    x12 = interpolate(y1, x1, y2, x2)
+   h12 = interpolate(y1, h1, y2, h2)
+   
    x02 = interpolate(y0, x0, y2, x2)
+   h02 = interpolate(y0, h0, y2, h2)
 
    -- debug()
    
@@ -83,15 +102,30 @@ function love.load()
    for k,v in ipairs(x12) do
       table.insert(x012, v)
    end
-
+   
+   table.remove(h01)
+   h012 = {}
+   for k,v in ipairs(h01) do
+      table.insert(h012, v)
+   end
+   for k,v in ipairs(h12) do
+      table.insert(h012, v)
+   end
+   
    -- determine which is left and which is right
    m = math.floor(#x012 / 2)
    if x02[m] < x012[m] then
       x_left = x02
+      h_left = h02
+      
       x_right = x012
+      h_right = h012
    else
       x_left = x012
+      h_left = h012
+      
       x_right = x02
+      h_right = x02
    end
 
    -- print("Size of x_left = " .. #x_left)
@@ -123,11 +157,18 @@ function love.draw()
    
    if DRAW_FILL == true then
       -- fill triangle
-      love.graphics.setColor(0,1,0)
+      love.graphics.setColor(red, green, blue)
 
       for y=y0,y2 do
-	 for x=x_left[y - y0 + 1],x_right[y - y0 + 1] do
-	    --  print("x = " .. x .. ", y = " .. y)
+	 x_l = x_left[y - y0 + 1]
+	 x_r = x_right[y - y0 + 1]
+
+	 h_segment = interpolate(x_l, h_left[y - y0 + 1], x_r, h_right[y - y0 + 1])
+	 -- print("Size of h_segment: " .. #h_segment) -- DEBUG
+	 for x = x_l,x_r do
+	    h = h_segment[x - x_l + 1]
+	    -- print("h = " .. h) -- DEBUG
+	    love.graphics.setColor(red * h, green * h, blue * h)
 	    love.graphics.points(convert2screen(x, true), convert2screen(y, false))
 	 end
       end
