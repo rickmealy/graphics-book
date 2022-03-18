@@ -5,6 +5,10 @@
    I finished the modifications, but it's not working. I'm getting an error.
    I think it's a table index error.
    Tables start at 1, so t[1] is the first element and t[#t] is the last.
+
+   UPDATE: It's kind of working now since I'm checking for nil in the inner
+   loop in draw. But it's not right, has some weird marks.
+   Also, I shouldn't have to check for nil.
 ]]--
 
 --constants
@@ -52,9 +56,9 @@ function love.load()
    x2, y2 = P2X, P2Y
 
    -- set h values
-   h0 = 0.0
-   h1 = 0.0
-   h2 = 1.1
+   h0 = 0.1
+   h1 = 0.2
+   h2 = 1.0
 
    -- get points for edge lines
    points01 = calculatePoints(x0, y0, x1, y1)
@@ -94,7 +98,6 @@ function love.load()
    
    -- concatenate the short sides
    table.remove(x01)
-
    x012 = {}
    for k,v in ipairs(x01) do
       table.insert(x012, v)
@@ -128,7 +131,13 @@ function love.load()
       h_right = x02
    end
 
-   -- print("Size of x_left = " .. #x_left)
+   print("y0 = " .. y0 .. ", y2 = " .. y2)
+   
+   print("Size of x_left = " .. #x_left)
+   print("Size of h_left = " .. #h_left)
+   
+   print("Size of x_right = " .. #x_right)
+   print("Size of h_right = " .. #h_right)   
    
    -- prepare for drawing, but only done once
    ps = love.graphics.getPointSize() + POINT_SIZE_INCREASE
@@ -163,13 +172,19 @@ function love.draw()
 	 x_l = x_left[y - y0 + 1]
 	 x_r = x_right[y - y0 + 1]
 
+	 -- print("x_l = " .. x_l)
+	 -- pprint("x_r = " .. x_r)
+	 
 	 h_segment = interpolate(x_l, h_left[y - y0 + 1], x_r, h_right[y - y0 + 1])
 	 -- print("Size of h_segment: " .. #h_segment) -- DEBUG
 	 for x = x_l,x_r do
 	    h = h_segment[x - x_l + 1]
-	    -- print("h = " .. h) -- DEBUG
-	    love.graphics.setColor(red * h, green * h, blue * h)
-	    love.graphics.points(convert2screen(x, true), convert2screen(y, false))
+	    if h ~= nil then
+	       -- print("h = nil") -- DEBUG
+	    -- else
+	       love.graphics.setColor(red * h, green * h, blue * h)
+	       love.graphics.points(convert2screen(x, true), convert2screen(y, false))
+	    end
 	 end
       end
 
