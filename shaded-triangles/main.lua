@@ -9,6 +9,12 @@
    UPDATE: It's kind of working now since I'm checking for nil in the inner
    loop in draw. But it's not right, has some weird marks.
    Also, I shouldn't have to check for nil.
+
+   I think I'm going to give up. It's working at is, at least sort of,
+   but I don't understand it.
+
+   Figured it out! x_r & x_r needed to be converted to int with floor.
+   Still want to rewrite using canvas.
 ]]--
 
 --constants
@@ -56,9 +62,9 @@ function love.load()
    x2, y2 = P2X, P2Y
 
    -- set h values
-   h0 = 0.1
-   h1 = 0.2
-   h2 = 1.0
+   h0 = 0.3
+   h1 = 1.0
+   h2 = 0.1
 
    -- get points for edge lines
    points01 = calculatePoints(x0, y0, x1, y1)
@@ -72,14 +78,17 @@ function love.load()
    if y1 < y0 then
       x1, x0 = x0, x1
       y1, y0 = y0, y1
+      h1, h0 = h0, h1
    end
    if y2 < y0 then
       x2, x0 = x0, x2
       y2, y0 = y0, y2
+      h2, h0 = h0, h2
    end
    if y2 < y1 then
       x2, x1 = x1, x2
       y2, y1 = y1, y2
+      h2, h1 = h1, h2
    end
 
    -- debug()
@@ -138,10 +147,16 @@ function love.load()
    
    print("Size of x_right = " .. #x_right)
    print("Size of h_right = " .. #h_right)   
+
+   print("Third element of x_left: " .. x_left[3])
+   print("Third element of x_right: " .. x_right[3])   
    
    -- prepare for drawing, but only done once
    ps = love.graphics.getPointSize() + POINT_SIZE_INCREASE
    love.graphics.setPointSize(ps)
+
+   control = true
+   
 end
 
 function love.draw()
@@ -169,25 +184,19 @@ function love.draw()
       love.graphics.setColor(red, green, blue)
 
       for y=y0,y2 do
-	 x_l = x_left[y - y0 + 1]
-	 x_r = x_right[y - y0 + 1]
+	 x_l = math.floor(x_left[y - y0 + 1] + 0.5)
+	 x_r = math.floor(x_right[y - y0 + 1] + 0.5)
+	 h_l = h_left[y - y0 + 1]
+	 h_r = h_right[y - y0 + 1]
 
-	 -- print("x_l = " .. x_l)
-	 -- pprint("x_r = " .. x_r)
+	 h_segment = interpolate(x_l, h_l, x_r, h_r)
 	 
-	 h_segment = interpolate(x_l, h_left[y - y0 + 1], x_r, h_right[y - y0 + 1])
-	 -- print("Size of h_segment: " .. #h_segment) -- DEBUG
 	 for x = x_l,x_r do
 	    h = h_segment[x - x_l + 1]
-	    if h ~= nil then
-	       -- print("h = nil") -- DEBUG
-	    -- else
-	       love.graphics.setColor(red * h, green * h, blue * h)
-	       love.graphics.points(convert2screen(x, true), convert2screen(y, false))
-	    end
+	    love.graphics.setColor(red * h, green * h, blue * h)
+	    love.graphics.points(convert2screen(x, true), convert2screen(y, false))
 	 end
       end
-
       love.graphics.setColor(1,1,1)   
    end
    
