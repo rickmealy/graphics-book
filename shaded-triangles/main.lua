@@ -2,19 +2,10 @@
 -- default window size is 800x600
 
 --[[
-   I finished the modifications, but it's not working. I'm getting an error.
-   I think it's a table index error.
-   Tables start at 1, so t[1] is the first element and t[#t] is the last.
+   Remember: the independent var sent to interpolate must be an in
+   x_r & x_r needed to be converted to int with floor.
 
-   UPDATE: It's kind of working now since I'm checking for nil in the inner
-   loop in draw. But it's not right, has some weird marks.
-   Also, I shouldn't have to check for nil.
-
-   I think I'm going to give up. It's working at is, at least sort of,
-   but I don't understand it.
-
-   Figured it out! x_r & x_r needed to be converted to int with floor.
-   Still want to rewrite using canvas.
+   Using canvas for more efficiency on a still drawing.
 ]]--
 
 --constants
@@ -140,35 +131,20 @@ function love.load()
       h_right = x02
    end
 
-   print("y0 = " .. y0 .. ", y2 = " .. y2)
-   
-   print("Size of x_left = " .. #x_left)
-   print("Size of h_left = " .. #h_left)
-   
-   print("Size of x_right = " .. #x_right)
-   print("Size of h_right = " .. #h_right)   
-
-   print("Third element of x_left: " .. x_left[3])
-   print("Third element of x_right: " .. x_right[3])   
-   
    -- prepare for drawing, but only done once
    ps = love.graphics.getPointSize() + POINT_SIZE_INCREASE
    love.graphics.setPointSize(ps)
 
-   control = true
-   
-end
+   -- draw to canvas
+   canvas = love.graphics.newCanvas(SCREEN_WIDTH, SCREEN_HEIGHT)
+   love.graphics.setCanvas(canvas)
 
-function love.draw()
+   love.graphics.clear()
+   love.graphics.setBlendMode("alpha")
+
    -- draw x and y axes for cartesian plane
    love.graphics.line(SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT)
    love.graphics.line(0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT/2)
-
-   --[[
-   love.graphics.print("P0", convert2screen(P0X, true), convert2screen(P0Y, false))
-   love.graphics.print("P1", convert2screen(P1X, true), convert2screen(P1Y, false))
-   love.graphics.print("P2", convert2screen(P2X, true), convert2screen(P2Y, false))
-   ]]--
 
    if DRAW_OUTLINE == true then
    -- draw triangle outline
@@ -200,6 +176,15 @@ function love.draw()
       love.graphics.setColor(1,1,1)   
    end
    
+   love.graphics.setCanvas()
+end
+
+function love.draw()
+   love.graphics.setColor(1, 1, 1, 1)
+   love.graphics.setBlendMode("alpha", "premultiplied")
+   love.graphics.draw(canvas)
+   -- if non-canvas drawing to be done after this, set blend mode back to regular alpha
+   -- love.graphics.setBlendMode("alpha")
 end
 
 function love.keypressed(key, scancode, isrepeat)
