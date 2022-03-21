@@ -1,0 +1,16 @@
+BOOKMARK: Finished reading "Perspective Projection", haven't coded it yet.
+
+To push to github (after commit):
+git push github master
+
+If you don't want to redraw all the points each time, use canvas.
+See wiki page, love.graphics, Types, Canvas.
+
+If you want to try this with SFML, I think you could try using VertexArray.
+
+SFML is written in and geared toward C++
+whereas
+SDL is written in and geared toward C
+
+So maybe better to either use C++ for this, or learn sdl and use C.
+Of course, both languages are fully supported in both libraries.
