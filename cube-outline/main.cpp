@@ -1,7 +1,6 @@
 /*
   Perspecive Projection chapter. Draw a cube outline.
-  Starting from a barebones SFML file with circle shape to get the hang of it again.
-  Need to read about Vertex Arrays again.
+  Use Vertex Array to draw points.
  */
 
 #include <SFML/Graphics.hpp>
@@ -12,10 +11,27 @@ int main()
 {
   RenderWindow window(VideoMode(800, 600), "Cube Outline");
 
-  // testing drawing
-  CircleShape shape(50.f);
-  shape.setFillColor(Color(100, 250, 50));
-  shape.setPosition(100.0f, 100.0f);
+  // try drawing a line with points
+  VertexArray points(Points);
+
+  for (int i = 100, j = 100; i < 200; i++, j+=3)
+    {
+      float x = (float)i;
+      float y = (float)j;
+      
+      points.append(Vertex(Vector2f(x,y), Color::Green));
+    }
+
+  /* 
+  // Leaving this in for now just to show how it works.
+  Vertex v1(Vector2f(150.f,150.f),Color::Red);
+  Vertex v2(Vector2f(155.f,155.f), Color::Blue);
+  Vertex v3(Vector2f(160.f,160.f), Color::Green);
+
+  points.append(v1);
+  points.append(v2);
+  points.append(v3);
+  */
   
   while (window.isOpen())
     {
@@ -39,7 +55,7 @@ int main()
 
       window.clear(Color::Black);
 
-      window.draw(shape);
+      window.draw(points);
       
       window.display();
     } // end main while loop
