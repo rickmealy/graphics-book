@@ -1,6 +1,10 @@
 /*
   Perspecive Projection chapter. Draw a cube outline.
   Use Vertex Array to draw points.
+
+  This is harder than I thought. I need to create lines, then add them together
+  into the vertex array. Will need drawline function from first chapter.
+
  */
 
 #include <SFML/Graphics.hpp>
@@ -61,4 +65,12 @@ int main()
     } // end main while loop
 
   return 0;
+}
+
+void addLine(VertexArray va, Vector2f start, Vector2f end, Color color)
+{
+  // Need to create a drawline function with interpolate, from first section,
+  // then add it to the vertex array.
+  // Maybe add each line to the vertex array in main, so this function
+  // may not be needed.
 }
